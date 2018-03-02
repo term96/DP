@@ -6,5 +6,6 @@
 */!.vscode/extensions.json
 
 # Build results
-*/bin/*
-*/obj/*
+**/bin/*
+**/obj/*
+**/build*/*
