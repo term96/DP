@@ -23,12 +23,19 @@ move build-%1 ../../build-%1/Backend
 cd ../../
 echo:
 
+echo BUILDING TEXTLISTENER
+cd src/textlistener/
+dotnet publish -c Release -o build-%1
+move build-%1 ../../build-%1/TextListener
+cd ../../
+echo:
+
 echo COPIYNG CONFIGS
 cd src/
 @echo off
 xcopy config ..\build-%1\config\
 xcopy run.cmd ..\build-%1\
 xcopy stop.cmd ..\build-%1\
+cd ..
 
 echo BUILD FINISHED
-pause
