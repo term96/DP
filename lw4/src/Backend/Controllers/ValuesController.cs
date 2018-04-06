@@ -23,9 +23,8 @@ namespace Backend.Controllers
 
         // GET api/values/<id>
         [HttpGet("{id}")]
-        public HttpResponseMessage Get(string value)
+        public HttpResponseMessage Get(string id)
         {
-            var id = Guid.NewGuid().ToString();
             IDatabase db = redis.GetDatabase();
 
             for (int i = 0; i < MAX_ATTEMPTIONS; i++)
