@@ -5,12 +5,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Frontend.Models;
+using System.Net;
 using System.Net.Http;
 
 namespace Frontend.Controllers
 {
     public class HomeController : Controller
     {
+        static readonly string BASE_ADDRESS = "http://localhost:5001";
+
         public IActionResult Index()
         {
             return View();
@@ -35,6 +38,23 @@ namespace Frontend.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
+        [HttpGet("{id}")]
+        public IActionResult TextDetails(string id)
+        {
+            using(HttpClient client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(BASE_ADDRESS);
+                var request = client.GetAsync("api/values/" + id);
+                if (request.Result.StatusCode == HttpStatusCode.OK)
+                {
+                    var content = request.Result.Content.ReadAsStringAsync();
+                    ViewData["Rank"] = content.Result;
+                    return View();
+                }
+                return NotFound("Результат не найден");
+            }
+        }
+
         [HttpGet]
         public IActionResult Upload()
         {
@@ -46,14 +66,22 @@ namespace Frontend.Controllers
         {
             using(HttpClient client = new HttpClient())
             {
-                client.BaseAddress = new Uri("http://localhost:5001");
+                client.BaseAddress = new Uri(BASE_ADDRESS);
                 var content = new FormUrlEncodedContent(new []
                 {
                     new KeyValuePair<string, string>("value", data)
                 });
+
                 var request = client.PostAsync("api/values", content);
-                var requestContent = request.Result.Content.ReadAsStringAsync();
-                return Ok(requestContent.Result);
+
+                if (request.Result.StatusCode == HttpStatusCode.OK)
+                {
+                    var requestContent = request.Result.Content.ReadAsStringAsync();
+                    string id = requestContent.Result;
+                    return RedirectToAction("TextDetails", new { id = id });
+                }
+
+                return Error();
             }
         }
     }
