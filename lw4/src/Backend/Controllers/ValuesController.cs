@@ -13,7 +13,6 @@ namespace Backend.Controllers
     {
         static readonly String EXCHANGE_NAME = "backend_api";
         static readonly String ROUTING_KEY = "TextCreated";
-        static readonly String QUEUE_NAME = "text_listener";
         static readonly ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
         static readonly ConnectionFactory rabbit = new ConnectionFactory() { HostName = "localhost" };
 
@@ -45,17 +44,6 @@ namespace Backend.Controllers
                 channel.ExchangeDeclare(
                     exchange: EXCHANGE_NAME,
                     type: "direct"
-                );
-                var queue = channel.QueueDeclare(
-                    queue: QUEUE_NAME,
-                    durable: true,
-                    exclusive: false,
-                    autoDelete: false
-                );
-                channel.QueueBind(
-                    queue: QUEUE_NAME,
-                    exchange: EXCHANGE_NAME,
-                    routingKey: ROUTING_KEY
                 );
 
                 var body = Encoding.UTF8.GetBytes(message);

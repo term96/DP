@@ -7,6 +7,9 @@
 			"path": "Backend"
 		},
 		{
+			"path": "TextRankCalc"
+		},
+		{
 			"path": "TextListener"
 		}
 	],
