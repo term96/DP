@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using StackExchange.Redis;
 using RabbitMQ.Client;
 using System.Text;
+using System.Net;
+using System.Net.Http;
+using System.Threading;
 
 namespace Backend.Controllers
 {
@@ -15,13 +18,28 @@ namespace Backend.Controllers
         static readonly String ROUTING_KEY = "TextCreated";
         static readonly ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
         static readonly ConnectionFactory rabbit = new ConnectionFactory() { HostName = "localhost" };
+        static readonly int MAX_ATTEMPTIONS = 5;
+        static readonly int SLEEP_MS = 50;
 
         // GET api/values/<id>
         [HttpGet("{id}")]
-        public string Get(string id)
+        public HttpResponseMessage Get(string value)
         {
+            var id = Guid.NewGuid().ToString();
             IDatabase db = redis.GetDatabase();
-            return db.StringGet(id);
+
+            for (int i = 0; i < MAX_ATTEMPTIONS; i++)
+            {
+                if (db.KeyExists(id))
+                {
+                    var response = new HttpResponseMessage(HttpStatusCode.OK);
+                    response.Content = new StringContent(db.StringGet(id));
+                    return response;
+                }
+                Thread.Sleep(SLEEP_MS);
+            }
+
+            return new HttpResponseMessage(HttpStatusCode.NotFound);
         }
 
         // POST api/values
