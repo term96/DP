@@ -23,22 +23,20 @@ namespace Backend.Controllers
 
         // GET api/values/<id>
         [HttpGet("{id}")]
-        public HttpResponseMessage Get(string id)
+        public string Get(string id)
         {
             IDatabase db = redis.GetDatabase();
-
             for (int i = 0; i < MAX_ATTEMPTIONS; i++)
             {
                 if (db.KeyExists(id))
                 {
-                    var response = new HttpResponseMessage(HttpStatusCode.OK);
-                    response.Content = new StringContent(db.StringGet(id));
-                    return response;
+                    Response.StatusCode = 200;
+                    return db.StringGet(id);
                 }
                 Thread.Sleep(SLEEP_MS);
             }
-
-            return new HttpResponseMessage(HttpStatusCode.NotFound);
+            Response.StatusCode = 404;
+            return "";
         }
 
         // POST api/values

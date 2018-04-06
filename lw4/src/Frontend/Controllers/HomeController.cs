@@ -38,17 +38,16 @@ namespace Frontend.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        [HttpGet("{id}")]
         public IActionResult TextDetails(string id)
         {
             using(HttpClient client = new HttpClient())
             {
                 client.BaseAddress = new Uri(BASE_ADDRESS);
-                var request = client.GetAsync("api/values/" + id);
-                if (request.Result.StatusCode == HttpStatusCode.OK)
+                var request = client.GetAsync("api/values/" + id).Result;
+                if (request.StatusCode == HttpStatusCode.OK)
                 {
-                    var content = request.Result.Content.ReadAsStringAsync();
-                    ViewData["Rank"] = content.Result;
+                    var resp = request.Content.ReadAsStringAsync().Result;
+                    ViewData["Rank"] = resp;
                     return View();
                 }
                 return NotFound("Результат не найден");
