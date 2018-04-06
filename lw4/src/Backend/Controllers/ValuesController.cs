@@ -30,12 +30,12 @@ namespace Backend.Controllers
             {
                 if (db.KeyExists(id))
                 {
-                    Response.StatusCode = 200;
+                    Response.StatusCode = (int) HttpStatusCode.OK;
                     return db.StringGet(id);
                 }
                 Thread.Sleep(SLEEP_MS);
             }
-            Response.StatusCode = 404;
+            Response.StatusCode = (int) HttpStatusCode.NotFound;
             return "";
         }
 
