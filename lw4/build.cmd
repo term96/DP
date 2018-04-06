@@ -30,6 +30,13 @@ move build-%1 ../../build-%1/TextListener
 cd ../../
 echo:
 
+echo BUILDING TEXTRANKCALC
+cd src/textrankcalc/
+dotnet publish -c Release -o build-%1
+move build-%1 ../../build-%1/TextRankCalc
+cd ../../
+echo:
+
 echo COPIYNG CONFIGS
 cd src/
 @echo off
