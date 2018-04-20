@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "Frontend"
+		},
+		{
+			"path": "Backend"
+		},
+		{
+			"path": "TextRankCalc"
+		},
+		{
+			"path": "TextListener"
+		}
+	],
+	"settings": {}
+}
