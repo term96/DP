@@ -37,6 +37,20 @@ move build-%1 ../../build-%1/TextRankCalc
 cd ../../
 echo:
 
+echo BUILDING VOWELCONSCOUNTER
+cd src/vowelconscounter/
+dotnet publish -c Release -o build-%1
+move build-%1 ../../build-%1/VowelConsCounter
+cd ../../
+echo:
+
+echo BUILDING VOWELCONSRATER
+cd src/vowelconsrater/
+dotnet publish -c Release -o build-%1
+move build-%1 ../../build-%1/VowelConsRater
+cd ../../
+echo:
+
 echo COPIYNG CONFIGS
 cd src/
 @echo off
