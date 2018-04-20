@@ -2,23 +2,18 @@
 using System.Text;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using StackExchange.Redis;
 using System.Collections.Generic;
 
 namespace TextRankCalc
 {
     class Program
     {
-        static readonly String EXCHANGE_NAME = "backend_api";
-        static readonly String QUEUE_NAME = "text_rank_calc";
-        static readonly String ROUTING_KEY = "TextCreated";
-        static readonly ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
+        static readonly String BACKEND_API_EXCHANGE = "backend_api";
+        static readonly String BACKEND_QUEUE = "text_rank_calc";
+        static readonly String BACKEND_ROUTING_KEY = "TextCreated";
+        static readonly String TEXTRANK_API_EXCHANGE = "textrank_api";
+        static readonly String TEXTRANK_ROUTING_KEY = "TextRankTask";
         static readonly ConnectionFactory rabbit = new ConnectionFactory() { HostName = "localhost" };
-        static readonly HashSet<Char> vowels = new HashSet<Char>()
-        { 
-            'a', 'e', 'i', 'o', 'u',
-            'а', 'о', 'и', 'е', 'ё', 'э', 'ы', 'у', 'ю', 'я'
-        };
 
         static void Main(string[] args)
         {
@@ -26,49 +21,46 @@ namespace TextRankCalc
             using(var channel = connection.CreateModel())
             {
                 channel.ExchangeDeclare(
-                    exchange: EXCHANGE_NAME,
+                    exchange: BACKEND_API_EXCHANGE,
+                    type: "direct"
+                );
+                channel.ExchangeDeclare(
+                    exchange: TEXTRANK_API_EXCHANGE,
                     type: "direct"
                 );
                 var queue = channel.QueueDeclare(
-                    queue: QUEUE_NAME,
+                    queue: BACKEND_QUEUE,
                     durable: true,
                     exclusive: false,
                     autoDelete: false
                 );
                 channel.QueueBind(
-                    queue: QUEUE_NAME,
-                    exchange: EXCHANGE_NAME,
-                    routingKey: ROUTING_KEY
+                    queue: BACKEND_QUEUE,
+                    exchange: BACKEND_API_EXCHANGE,
+                    routingKey: BACKEND_ROUTING_KEY
                 );
 
                 var consumer = new EventingBasicConsumer(channel);
                 consumer.Received += (model, ea) =>
                 {
                     var body = ea.Body;
-                    string id = Encoding.UTF8.GetString(body);
-                    IDatabase db = redis.GetDatabase();
-                    string text = db.StringGet(id);
+                    var properties = channel.CreateBasicProperties();
+                    properties.Persistent = true;
 
-                    int lettersNumber = 0;
-                    int vowelsNumber = 0;
-                    foreach (char ch in text)
-                    {
-                        if (Char.IsLetter(ch))
-                        {
-                            lettersNumber++;
-                            vowelsNumber += vowels.Contains(Char.ToLowerInvariant(ch)) ? 1 : 0;
-                        }
-                    }
+                    channel.BasicPublish(
+                        exchange: TEXTRANK_API_EXCHANGE,
+                        routingKey: TEXTRANK_ROUTING_KEY,
+                        basicProperties: properties,
+                        body: body
+                    );
 
-                    var rank = (lettersNumber == vowelsNumber) ? 0 : (double) vowelsNumber / (lettersNumber - vowelsNumber);
-                    db.StringSet(id, rank);
                     channel.BasicAck(
                         deliveryTag: ea.DeliveryTag,
                         multiple: false
                     );
                 };
                 channel.BasicConsume(
-                    queue: QUEUE_NAME,
+                    queue: BACKEND_QUEUE,
                     autoAck: false,
                     consumer: consumer
                 );

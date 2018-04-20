@@ -11,6 +11,12 @@
 		},
 		{
 			"path": "TextListener"
+		},
+		{
+			"path": "VowelConsCounter"
+		},
+		{
+			"path": "VowelConsRater"
 		}
 	],
 	"settings": {}
