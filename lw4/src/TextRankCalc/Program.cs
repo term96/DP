@@ -60,7 +60,7 @@ namespace TextRankCalc
                         }
                     }
 
-                    var rank = (lettersNumber == vowelsNumber) ? 0 : vowelsNumber / (lettersNumber - vowelsNumber);
+                    var rank = (lettersNumber == vowelsNumber) ? 0 : (double) vowelsNumber / (lettersNumber - vowelsNumber);
                     db.StringSet(id, rank);
                     channel.BasicAck(
                         deliveryTag: ea.DeliveryTag,
