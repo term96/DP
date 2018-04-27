@@ -3,6 +3,7 @@ using System.Text;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using StackExchange.Redis;
+using System.Security.Cryptography;
 
 namespace TextListener
 {
@@ -41,7 +42,11 @@ namespace TextListener
                 {
                     var body = ea.Body;
                     var id = Encoding.UTF8.GetString(body);
-                    IDatabase db = redis.GetDatabase();
+
+                    int dbNumber = GetDBNumber(id);
+                    IDatabase db = redis.GetDatabase(db: dbNumber);
+                    Console.WriteLine("Redis: accessed DB {0} by contextId {1}", dbNumber, id);
+
                     var text = db.StringGet(id + DB_PREFIX_TEXT);
                     Console.WriteLine("ID: {0}, Text: {1}", id, text);
                     channel.BasicAck(
@@ -59,6 +64,16 @@ namespace TextListener
                 {
                     Console.ReadKey(true);
                 }
+            }
+        }
+
+        private static int GetDBNumber(String contextId)
+        {
+            const int databases = 16;
+            using(MD5 md5 = new MD5CryptoServiceProvider())
+            {
+                byte[] result = md5.ComputeHash(Encoding.UTF8.GetBytes(contextId));
+                return (result[0] ^ result[4] ^ result[8] ^ result[12]) % databases;
             }
         }
     }

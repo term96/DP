@@ -4,6 +4,7 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using StackExchange.Redis;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 
 namespace VowelConsCounter
 {
@@ -48,7 +49,11 @@ namespace VowelConsCounter
                 {
                     var body = ea.Body;
                     string id = Encoding.UTF8.GetString(body);
-                    IDatabase db = redis.GetDatabase();
+
+                    int dbNumber = GetDBNumber(id);
+                    IDatabase db = redis.GetDatabase(db: dbNumber);
+                    Console.WriteLine("Redis: accessed DB {0} by contextId {1}", dbNumber, id);
+
                     string text = db.StringGet(id + DB_PREFIX_TEXT);
 
                     int lettersNumber = 0;
@@ -88,6 +93,16 @@ namespace VowelConsCounter
                 {
                     Console.ReadKey(true);
                 }
+            }
+        }
+
+        private static int GetDBNumber(String contextId)
+        {
+            const int databases = 16;
+            using(MD5 md5 = new MD5CryptoServiceProvider())
+            {
+                byte[] result = md5.ComputeHash(Encoding.UTF8.GetBytes(contextId));
+                return (result[0] ^ result[4] ^ result[8] ^ result[12]) % databases;
             }
         }
     }

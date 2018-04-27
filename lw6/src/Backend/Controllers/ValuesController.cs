@@ -8,6 +8,7 @@ using System.Text;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
+using System.Security.Cryptography;
 
 namespace Backend.Controllers
 {
@@ -28,7 +29,10 @@ namespace Backend.Controllers
         [HttpGet("{id}")]
         public string Get(string id)
         {
-            IDatabase db = redis.GetDatabase();
+            int dbNumber = GetDBNumber(id);
+            IDatabase db = redis.GetDatabase(db: dbNumber);
+            Console.WriteLine("Redis: accessed DB {0} by contextId {1}", dbNumber, id);
+
             for (int i = 0; i < MAX_ATTEMPTIONS; i++)
             {
                 if (db.KeyExists(id + DB_PREFIX_RANK))
@@ -47,7 +51,11 @@ namespace Backend.Controllers
         public string Post(string value)
         {
             var id = Guid.NewGuid().ToString();
-            IDatabase db = redis.GetDatabase();
+
+            int dbNumber = GetDBNumber(id);
+            IDatabase db = redis.GetDatabase(db: dbNumber);
+            Console.WriteLine("Redis: accessed DB {0} by contextId {1}", dbNumber, id);
+
             db.StringSet(id + DB_PREFIX_TEXT, value);
             SendMessage(id);
 
@@ -74,6 +82,16 @@ namespace Backend.Controllers
                     basicProperties: properties,
                     body: body
                 );
+            }
+        }
+
+        private static int GetDBNumber(String contextId)
+        {
+            const int databases = 16;
+            using(MD5 md5 = new MD5CryptoServiceProvider())
+            {
+                byte[] result = md5.ComputeHash(Encoding.UTF8.GetBytes(contextId));
+                return (result[0] ^ result[4] ^ result[8] ^ result[12]) % databases;
             }
         }
     }
