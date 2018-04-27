@@ -50,7 +50,7 @@ namespace Frontend.Controllers
                     ViewData["Rank"] = resp;
                     return View();
                 }
-                return NotFound("Результат не найден");
+                return NotFound("Оценка текста не найдена, попробуйте обновить страницу");
             }
         }
 

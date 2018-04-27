@@ -20,6 +20,7 @@ namespace VowelConsCounter
             'a', 'e', 'i', 'o', 'u',
             'а', 'о', 'и', 'е', 'ё', 'э', 'ы', 'у', 'ю', 'я'
         };
+        static readonly String DB_PREFIX_TEXT = "-text";
 
         static void Main(string[] args)
         {
@@ -48,7 +49,7 @@ namespace VowelConsCounter
                     var body = ea.Body;
                     string id = Encoding.UTF8.GetString(body);
                     IDatabase db = redis.GetDatabase();
-                    string text = db.StringGet(id);
+                    string text = db.StringGet(id + DB_PREFIX_TEXT);
 
                     int lettersNumber = 0;
                     int vowelsNumber = 0;

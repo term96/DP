@@ -14,6 +14,7 @@ namespace VowelConsRater
         static readonly String TEXTRANK_ROUTING_KEY = "VowelConsCounted";
         static readonly ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
         static readonly ConnectionFactory rabbit = new ConnectionFactory() { HostName = "localhost" };
+        static readonly String DB_PREFIX_RANK = "-rank";
 
         static void Main(string[] args)
         {
@@ -48,7 +49,7 @@ namespace VowelConsRater
                     var rank = (consNumber == 0) ? 0 : vowelsNumber / consNumber;
 
                     IDatabase db = redis.GetDatabase();
-                    db.StringSet(id, rank);
+                    db.StringSet(id + DB_PREFIX_RANK, rank);
 
                     channel.BasicAck(
                         deliveryTag: ea.DeliveryTag,

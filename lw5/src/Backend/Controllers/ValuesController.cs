@@ -20,6 +20,9 @@ namespace Backend.Controllers
         static readonly ConnectionFactory rabbit = new ConnectionFactory() { HostName = "localhost" };
         static readonly int MAX_ATTEMPTIONS = 5;
         static readonly int SLEEP_MS = 50;
+        static readonly String DB_PREFIX_TEXT = "-text";
+        static readonly String DB_PREFIX_RANK = "-rank";
+
 
         // GET api/values/<id>
         [HttpGet("{id}")]
@@ -28,10 +31,10 @@ namespace Backend.Controllers
             IDatabase db = redis.GetDatabase();
             for (int i = 0; i < MAX_ATTEMPTIONS; i++)
             {
-                if (db.KeyExists(id))
+                if (db.KeyExists(id + DB_PREFIX_RANK))
                 {
                     Response.StatusCode = (int) HttpStatusCode.OK;
-                    return db.StringGet(id);
+                    return db.StringGet(id + DB_PREFIX_RANK);
                 }
                 Thread.Sleep(SLEEP_MS);
             }
@@ -45,7 +48,7 @@ namespace Backend.Controllers
         {
             var id = Guid.NewGuid().ToString();
             IDatabase db = redis.GetDatabase();
-            db.StringSet(id, value);
+            db.StringSet(id + DB_PREFIX_TEXT, value);
             SendMessage(id);
 
             return id;
