@@ -23,7 +23,20 @@ namespace Backend.Controllers
         static readonly int SLEEP_MS = 50;
         static readonly String DB_PREFIX_TEXT = "-text";
         static readonly String DB_PREFIX_RANK = "-rank";
+        static readonly String DB_TEXTNUM_KEY = "TextNum";
+        static readonly String DB_HIGHRANKPART_KEY = "HighRankPart";
+        static readonly String DB_AVGRANK_KEY = "AvgRank";
 
+        // GET api/values/statistics
+        [HttpGet("/statistics")]
+        public string GetStatistics()
+        {
+            IDatabase db = redis.GetDatabase();
+            int textNum = db.KeyExists(DB_TEXTNUM_KEY) ? int.Parse(db.StringGet(DB_TEXTNUM_KEY)) : 0;
+            double highRankPart = db.KeyExists(DB_HIGHRANKPART_KEY) ? double.Parse(db.StringGet(DB_HIGHRANKPART_KEY)) : 0;
+            double avgRank = db.KeyExists(DB_AVGRANK_KEY) ? double.Parse(db.StringGet(DB_AVGRANK_KEY)) : 0;
+            return String.Format("{0};{1};{2}", textNum, highRankPart, avgRank);
+        }
 
         // GET api/values/<id>
         [HttpGet("{id}")]
