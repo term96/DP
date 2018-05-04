@@ -1,0 +1,10 @@
+@{
+    ViewData["TextNum"] = "0";
+	ViewData["HighRankPart"] = "0";
+	ViewData["AvgRank"] = "0";
+}
+<div>
+	<span>Общее количество всех обработанных текстов: @ViewData["TextNum"]</span>
+	<span>Количество текстов с высокой оценкой (выше 0.5): @ViewData["HighRankPart"]</span>
+	<span>Cредняя оценка: @ViewData["AvgRank"]</span>
+</div>
