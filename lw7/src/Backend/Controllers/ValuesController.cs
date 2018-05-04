@@ -9,6 +9,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Security.Cryptography;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Backend.Controllers
 {
@@ -27,15 +28,34 @@ namespace Backend.Controllers
         static readonly String DB_HIGHRANKPART_KEY = "HighRankPart";
         static readonly String DB_AVGRANK_KEY = "AvgRank";
 
+        static readonly String CACHE_KEY = "StatisticsCache";
+        static readonly double CACHE_LIFETIME_SECONDS = 20;
+        readonly IMemoryCache _cache;
+        public ValuesController(IMemoryCache cache)
+        {
+            _cache = cache;
+        }
+
         // GET api/values/statistics
         [HttpGet("statistics")]
         public string GetStatistics()
         {
-            IDatabase db = redis.GetDatabase(0);
-            int textNum = db.KeyExists(DB_TEXTNUM_KEY) ? int.Parse(db.StringGet(DB_TEXTNUM_KEY)) : 0;
-            int highRankPart = db.KeyExists(DB_HIGHRANKPART_KEY) ? int.Parse(db.StringGet(DB_HIGHRANKPART_KEY)) : 0;
-            double avgRank = db.KeyExists(DB_AVGRANK_KEY) ? double.Parse(db.StringGet(DB_AVGRANK_KEY)) : 0;
-            return String.Format("{0};{1};{2}", textNum, highRankPart, avgRank);
+            String data;
+            if (_cache.TryGetValue(CACHE_KEY, out data))
+            {
+                Console.WriteLine("Statistics loaded from cache");
+            }
+            else
+            {
+                IDatabase db = redis.GetDatabase(0);
+                int textNum = db.KeyExists(DB_TEXTNUM_KEY) ? int.Parse(db.StringGet(DB_TEXTNUM_KEY)) : 0;
+                int highRankPart = db.KeyExists(DB_HIGHRANKPART_KEY) ? int.Parse(db.StringGet(DB_HIGHRANKPART_KEY)) : 0;
+                double avgRank = db.KeyExists(DB_AVGRANK_KEY) ? double.Parse(db.StringGet(DB_AVGRANK_KEY)) : 0;
+                data = String.Format("{0};{1};{2}", textNum, highRankPart, avgRank);
+                _cache.Set(CACHE_KEY, data, DateTimeOffset.Now.AddSeconds(CACHE_LIFETIME_SECONDS));
+                Console.WriteLine("Statistics saved to cache");
+            }
+            return data;
         }
 
         // GET api/values/rank/<id>
