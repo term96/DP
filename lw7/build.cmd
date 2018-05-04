@@ -74,7 +74,9 @@ xcopy stop.cmd ..\build-%1\
 cd ..
 
 echo BUILD FINISHED
-exit
+goto success
 
 :failed
 echo BUILD FAILED
+
+:success
