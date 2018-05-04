@@ -12,7 +12,8 @@ namespace VowelConsRater
     {
         static readonly String TEXTRANK_API_EXCHANGE = "textrank_api";
         static readonly String TEXTRANK_QUEUE = "vowel-cons-counter";
-        static readonly String TEXTRANK_ROUTING_KEY = "VowelConsCounted";
+        static readonly String TEXTRANK_ROUTING_KEY_IN = "VowelConsCounted";
+        static readonly String TEXTRANK_ROUTING_KEY_OUT = "TextRankCalculated";
         static readonly ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
         static readonly ConnectionFactory rabbit = new ConnectionFactory() { HostName = "localhost" };
         static readonly String DB_PREFIX_RANK = "-rank";
@@ -35,7 +36,7 @@ namespace VowelConsRater
                 channel.QueueBind(
                     queue: TEXTRANK_QUEUE,
                     exchange: TEXTRANK_API_EXCHANGE,
-                    routingKey: TEXTRANK_ROUTING_KEY
+                    routingKey: TEXTRANK_ROUTING_KEY_IN
                 );
 
                 var consumer = new EventingBasicConsumer(channel);
@@ -54,6 +55,17 @@ namespace VowelConsRater
                     Console.WriteLine("Redis: accessed DB {0} by contextId {1}", dbNumber, id);
 
                     db.StringSet(id + DB_PREFIX_RANK, rank);
+
+                    var publishBody = Encoding.UTF8.GetBytes(String.Format("{0};{1}", id, rank));
+                    var properties = channel.CreateBasicProperties();
+                    properties.Persistent = true;
+
+                    channel.BasicPublish(
+                        exchange: TEXTRANK_API_EXCHANGE,
+                        routingKey: TEXTRANK_ROUTING_KEY_OUT,
+                        basicProperties: properties,
+                        body: publishBody
+                    );
 
                     channel.BasicAck(
                         deliveryTag: ea.DeliveryTag,
