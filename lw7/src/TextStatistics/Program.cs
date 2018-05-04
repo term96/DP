@@ -24,7 +24,7 @@ namespace TextStatistics
 
         static void Main(string[] args)
         {
-            IDatabase db = redis.GetDatabase();
+            IDatabase db = redis.GetDatabase(0);
             textNum = db.KeyExists(DB_TEXTNUM_KEY) ? int.Parse(db.StringGet(DB_TEXTNUM_KEY)) : 0;
             highRankPart = db.KeyExists(DB_HIGHRANKPART_KEY) ? double.Parse(db.StringGet(DB_HIGHRANKPART_KEY)) : 0;
             avgRank = db.KeyExists(DB_AVGRANK_KEY) ? double.Parse(db.StringGet(DB_AVGRANK_KEY)) : 0;
@@ -82,7 +82,7 @@ namespace TextStatistics
         }
 
         static void saveData() {
-            IDatabase db = redis.GetDatabase();
+            IDatabase db = redis.GetDatabase(0);
             db.StringSet(DB_TEXTNUM_KEY, textNum);
             db.StringSet(DB_HIGHRANKPART_KEY, highRankPart);
             db.StringSet(DB_AVGRANK_KEY, avgRank);
