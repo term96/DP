@@ -51,6 +51,13 @@ move build-%1 ../../build-%1/VowelConsRater
 cd ../../
 echo:
 
+echo BUILDING TEXTSTATISTICS
+cd src/textstatistics/
+dotnet publish -c Release -o build-%1
+move build-%1 ../../build-%1/TextStatistics
+cd ../../
+echo:
+
 echo COPIYNG CONFIGS
 cd src/
 @echo off

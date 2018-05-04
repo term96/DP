@@ -8,6 +8,7 @@ set VOWELCONSCOUNTER_PROCESS_TITLE=dp-vowelconscounter
 set VOWELCONSCOUNTER_PROCESS_NUMBER=1
 set VOWELCONSRATER_PROCESS_TITLE=dp-vowelconsrater
 set VOWELCONSRATER_PROCESS_NUMBER=1
+set TEXTSTATISTICS_PROCESS_TITLE=dp-textstatistics
 for /f "tokens=1,2 delims==" %%a in (config\config.ini) do (
 	if %%a==FRONTEND_PROCESS_TITLE set FRONTEND_PROCESS_TITLE=%%b
 	if %%a==BACKEND_PROCESS_TITLE set BACKEND_PROCESS_TITLE=%%b
@@ -17,6 +18,7 @@ for /f "tokens=1,2 delims==" %%a in (config\config.ini) do (
 	if %%a==VOWELCONSCOUNTER_PROCESS_NUMBER set VOWELCONSCOUNTER_PROCESS_NUMBER=%%b
 	if %%a==VOWELCONSRATER_PROCESS_TITLE set VOWELCONSRATER_PROCESS_TITLE=%%b
 	if %%a==VOWELCONSRATER_PROCESS_NUMBER set VOWELCONSRATER_PROCESS_NUMBER=%%b
+	if %%a==TEXTSTATISTICS_PROCESS_TITLE set TEXTSTATISTICS_PROCESS_TITLE=%%b
 )
 
 echo RUNNING FRONTEND
@@ -51,4 +53,9 @@ cd vowelconsrater
 for /l %%i in (1, 1, %VOWELCONSRATER_PROCESS_NUMBER%) do (
 	start "%VOWELCONSRATER_PROCESS_TITLE%-%%i" dotnet vowelconsrater.dll
 )
+cd ..
+
+echo RUNNING TEXTSTATISTICS
+cd textstatistics
+start "%TEXTSTATISTICS_PROCESS_TITLE%" dotnet textstatistics.dll
 cd ..
