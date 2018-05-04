@@ -7,7 +7,6 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Backend
 {
@@ -16,11 +15,6 @@ namespace Backend
         public static void Main(string[] args)
         {
             BuildWebHost(args).Run();
-        }
-
-        public void ConfigureServices(IServiceCollection services)
-        {
-	        services.AddMemoryCache();
         }
 
         public static IWebHost BuildWebHost(string[] args) =>
