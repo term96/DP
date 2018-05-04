@@ -11,7 +11,7 @@ mkdir build-%1
 
 echo BUILDING FRONTEND
 cd src/frontend/
-if exist obj rmdir obj /S /Q
+dotnet clean
 dotnet publish -c Release -o build-%1
 if errorlevel 1 goto failed
 move build-%1 ../../build-%1/Frontend
@@ -20,7 +20,7 @@ echo:
 
 echo BUILDING BACKEND
 cd src/backend/
-if exist obj rmdir obj /S /Q
+dotnet clean
 dotnet publish -c Release -o build-%1
 if errorlevel 1 goto failed
 move build-%1 ../../build-%1/Backend
@@ -29,7 +29,7 @@ echo:
 
 echo BUILDING TEXTLISTENER
 cd src/textlistener/
-if exist obj rmdir obj /S /Q
+dotnet clean
 dotnet publish -c Release -o build-%1
 if errorlevel 1 goto failed
 move build-%1 ../../build-%1/TextListener
@@ -38,7 +38,7 @@ echo:
 
 echo BUILDING TEXTRANKCALC
 cd src/textrankcalc/
-if exist obj rmdir obj /S /Q
+dotnet clean
 dotnet publish -c Release -o build-%1
 if errorlevel 1 goto failed
 move build-%1 ../../build-%1/TextRankCalc
@@ -47,7 +47,7 @@ echo:
 
 echo BUILDING VOWELCONSCOUNTER
 cd src/vowelconscounter/
-if exist obj rmdir obj /S /Q
+dotnet clean
 dotnet publish -c Release -o build-%1
 if errorlevel 1 goto failed
 move build-%1 ../../build-%1/VowelConsCounter
@@ -56,7 +56,7 @@ echo:
 
 echo BUILDING VOWELCONSRATER
 cd src/vowelconsrater/
-if exist obj rmdir obj /S /Q
+dotnet clean
 dotnet publish -c Release -o build-%1
 if errorlevel 1 goto failed
 move build-%1 ../../build-%1/VowelConsRater
@@ -65,7 +65,7 @@ echo:
 
 echo BUILDING TEXTSTATISTICS
 cd src/textstatistics/
-if exist obj rmdir obj /S /Q
+dotnet clean
 dotnet publish -c Release -o build-%1
 if errorlevel 1 goto failed
 move build-%1 ../../build-%1/TextStatistics
