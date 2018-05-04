@@ -28,18 +28,18 @@ namespace Backend.Controllers
         static readonly String DB_AVGRANK_KEY = "AvgRank";
 
         // GET api/values/statistics
-        [HttpGet("/statistics")]
+        [HttpGet("statistics")]
         public string GetStatistics()
         {
             IDatabase db = redis.GetDatabase(0);
             int textNum = db.KeyExists(DB_TEXTNUM_KEY) ? int.Parse(db.StringGet(DB_TEXTNUM_KEY)) : 0;
-            double highRankPart = db.KeyExists(DB_HIGHRANKPART_KEY) ? double.Parse(db.StringGet(DB_HIGHRANKPART_KEY)) : 0;
+            int highRankPart = db.KeyExists(DB_HIGHRANKPART_KEY) ? int.Parse(db.StringGet(DB_HIGHRANKPART_KEY)) : 0;
             double avgRank = db.KeyExists(DB_AVGRANK_KEY) ? double.Parse(db.StringGet(DB_AVGRANK_KEY)) : 0;
             return String.Format("{0};{1};{2}", textNum, highRankPart, avgRank);
         }
 
-        // GET api/values/<id>
-        [HttpGet("{id}")]
+        // GET api/values/rank/<id>
+        [HttpGet("rank/{id}")]
         public string Get(string id)
         {
             int dbNumber = GetDBNumber(id);

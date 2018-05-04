@@ -23,7 +23,7 @@ namespace Frontend.Controllers
             using(HttpClient client = new HttpClient())
             {
                 client.BaseAddress = new Uri(BASE_ADDRESS);
-                var request = client.GetAsync("api/values/" + id).Result;
+                var request = client.GetAsync("api/values/rank/" + id).Result;
                 if (request.StatusCode == HttpStatusCode.OK)
                 {
                     var resp = request.Content.ReadAsStringAsync().Result;

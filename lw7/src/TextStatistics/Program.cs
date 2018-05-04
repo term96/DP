@@ -18,7 +18,7 @@ namespace TextStatistics
         static readonly String DB_AVGRANK_KEY = "AvgRank";
 
         static int textNum;
-        static double highRankPart;
+        static int highRankPart;
         static double avgRank;
 
 
@@ -26,7 +26,7 @@ namespace TextStatistics
         {
             IDatabase db = redis.GetDatabase(0);
             textNum = db.KeyExists(DB_TEXTNUM_KEY) ? int.Parse(db.StringGet(DB_TEXTNUM_KEY)) : 0;
-            highRankPart = db.KeyExists(DB_HIGHRANKPART_KEY) ? double.Parse(db.StringGet(DB_HIGHRANKPART_KEY)) : 0;
+            highRankPart = db.KeyExists(DB_HIGHRANKPART_KEY) ? int.Parse(db.StringGet(DB_HIGHRANKPART_KEY)) : 0;
             avgRank = db.KeyExists(DB_AVGRANK_KEY) ? double.Parse(db.StringGet(DB_AVGRANK_KEY)) : 0;
 
             using(var connection = rabbit.CreateConnection())
@@ -85,7 +85,7 @@ namespace TextStatistics
             IDatabase db = redis.GetDatabase(0);
             db.StringSet(DB_TEXTNUM_KEY, textNum);
             db.StringSet(DB_HIGHRANKPART_KEY, highRankPart);
-            db.StringSet(DB_AVGRANK_KEY, avgRank);
+            db.StringSet(DB_AVGRANK_KEY, avgRank.ToString());
         }
     }
 }
