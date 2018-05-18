@@ -20,6 +20,12 @@
 		},
 		{
 			"path": "TextStatistics"
+		},
+		{
+			"path": "TextProcessingLimiter"
+		},
+		{
+			"path": "TextSuccessMarker"
 		}
 	],
 	"settings": {}
