@@ -8,11 +8,10 @@ namespace TextRankCalc
 {
     class Program
     {
-        static readonly String BACKEND_API_EXCHANGE = "backend_api";
-        static readonly String BACKEND_QUEUE = "text_rank_calc";
-        static readonly String BACKEND_ROUTING_KEY = "TextCreated";
+        static readonly String TEXTRANK_QUEUE = "text_rank_calc";
         static readonly String TEXTRANK_API_EXCHANGE = "textrank_api";
-        static readonly String TEXTRANK_ROUTING_KEY = "TextRankTask";
+        static readonly String TEXTRANK_ROUTING_KEY_IN = "ProcessingAccepted";
+        static readonly String TEXTRANK_ROUTING_KEY_OUT = "TextRankTask";
         static readonly ConnectionFactory rabbit = new ConnectionFactory() { HostName = "localhost" };
 
         static void Main(string[] args)
@@ -21,23 +20,19 @@ namespace TextRankCalc
             using(var channel = connection.CreateModel())
             {
                 channel.ExchangeDeclare(
-                    exchange: BACKEND_API_EXCHANGE,
-                    type: "direct"
-                );
-                channel.ExchangeDeclare(
                     exchange: TEXTRANK_API_EXCHANGE,
                     type: "direct"
                 );
                 var queue = channel.QueueDeclare(
-                    queue: BACKEND_QUEUE,
+                    queue: TEXTRANK_QUEUE,
                     durable: true,
                     exclusive: false,
                     autoDelete: false
                 );
                 channel.QueueBind(
-                    queue: BACKEND_QUEUE,
-                    exchange: BACKEND_API_EXCHANGE,
-                    routingKey: BACKEND_ROUTING_KEY
+                    queue: TEXTRANK_API_EXCHANGE,
+                    exchange: TEXTRANK_API_EXCHANGE,
+                    routingKey: TEXTRANK_ROUTING_KEY_IN
                 );
 
                 var consumer = new EventingBasicConsumer(channel);
@@ -47,12 +42,18 @@ namespace TextRankCalc
                     var properties = channel.CreateBasicProperties();
                     properties.Persistent = true;
 
-                    channel.BasicPublish(
-                        exchange: TEXTRANK_API_EXCHANGE,
-                        routingKey: TEXTRANK_ROUTING_KEY,
-                        basicProperties: properties,
-                        body: body
-                    );
+                    var data = Encoding.UTF8.GetString(body).Split(';');
+                    var status = data[1];
+
+                    if (status == "true")
+                    {
+                        channel.BasicPublish(
+                            exchange: TEXTRANK_API_EXCHANGE,
+                            routingKey: TEXTRANK_ROUTING_KEY_OUT,
+                            basicProperties: properties,
+                            body: Encoding.UTF8.GetBytes(data[0])
+                        );
+                    }
 
                     channel.BasicAck(
                         deliveryTag: ea.DeliveryTag,
@@ -60,7 +61,7 @@ namespace TextRankCalc
                     );
                 };
                 channel.BasicConsume(
-                    queue: BACKEND_QUEUE,
+                    queue: TEXTRANK_QUEUE,
                     autoAck: false,
                     consumer: consumer
                 );
