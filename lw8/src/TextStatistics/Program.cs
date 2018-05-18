@@ -9,13 +9,14 @@ namespace TextStatistics
     class Program
     {
         static readonly String TEXTRANK_API_EXCHANGE = "textrank_api";
-        static readonly String TEXTRANK_QUEUE = "text-rank-calc";
-        static readonly String TEXTRANK_ROUTING_KEY = "TextRankCalculated";
+        static readonly String TEXTRANK_QUEUE = "text-statistics";
+        static readonly String TEXTRANK_ROUTING_KEY = "TextSuccessMarked";
         static readonly ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
         static readonly ConnectionFactory rabbit = new ConnectionFactory() { HostName = "localhost" };
         static readonly String DB_TEXTNUM_KEY = "TextNum";
         static readonly String DB_HIGHRANKPART_KEY = "HighRankPart";
         static readonly String DB_AVGRANK_KEY = "AvgRank";
+        static readonly String DB_PREFIX_RANK = "-rank";
 
         static int textNum;
         static int highRankPart;
@@ -52,13 +53,15 @@ namespace TextStatistics
                 {
                     var body = ea.Body;
                     string[] data = Encoding.UTF8.GetString(body).Split(';');
-                    var id = data[0];
-                    var rank = double.Parse(data[1]);
+                    string id = data[0];
+                    string status = data[1];
 
+                    IDatabase db = redis.GetDatabase(db: dbNumber);
+                    Console.WriteLine("Redis: accessed DB {0} by contextId {1}", dbNumber, id);
+
+                    double rank = double.Parse(db.StringGet(id + DB_PREFIX_RANK));
                     textNum++;
-                    if (rank > 0.5) {
-                        highRankPart++;
-                    }
+                    highRankPart += status == "true" ? 1 : 0;
                     avgRank = (avgRank * (textNum - 1) + rank) / textNum;
                     saveData();
 
@@ -85,6 +88,16 @@ namespace TextStatistics
             db.StringSet(DB_TEXTNUM_KEY, textNum);
             db.StringSet(DB_HIGHRANKPART_KEY, highRankPart);
             db.StringSet(DB_AVGRANK_KEY, avgRank.ToString());
+        }
+
+        private static int GetDBNumber(String contextId)
+        {
+            const int databases = 16;
+            using(MD5 md5 = new MD5CryptoServiceProvider())
+            {
+                byte[] result = md5.ComputeHash(Encoding.UTF8.GetBytes(contextId));
+                return (result[0] ^ result[4] ^ result[8] ^ result[12]) % databases;
+            }
         }
     }
 }
