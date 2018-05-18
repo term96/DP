@@ -56,10 +56,11 @@ namespace TextStatistics
                     string id = data[0];
                     string status = data[1];
 
-                    IDatabase db = redis.GetDatabase(db: dbNumber);
+                    int dbNumber = GetDBNumber(id);
+                    IDatabase database = redis.GetDatabase(db: dbNumber);
                     Console.WriteLine("Redis: accessed DB {0} by contextId {1}", dbNumber, id);
 
-                    double rank = double.Parse(db.StringGet(id + DB_PREFIX_RANK));
+                    double rank = double.Parse(database.StringGet(id + DB_PREFIX_RANK));
                     textNum++;
                     highRankPart += status == "true" ? 1 : 0;
                     avgRank = (avgRank * (textNum - 1) + rank) / textNum;
