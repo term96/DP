@@ -103,5 +103,6 @@ goto success
 
 :failed
 echo BUILD FAILED
+cd ../../
 
 :success

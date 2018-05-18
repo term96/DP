@@ -54,7 +54,7 @@ namespace VowelConsRater
                     IDatabase db = redis.GetDatabase(db: dbNumber);
                     Console.WriteLine("Redis: accessed DB {0} by contextId {1}", dbNumber, id);
 
-                    db.StringSet(id + DB_PREFIX_RANK, rank);
+                    db.StringSet(id + DB_PREFIX_RANK, rank.ToString());
 
                     var publishBody = Encoding.UTF8.GetBytes(String.Format("{0};{1}", id, rank));
                     var properties = channel.CreateBasicProperties();

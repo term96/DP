@@ -3,6 +3,7 @@ using System.Text;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using StackExchange.Redis;
+using System.Security.Cryptography;
 
 namespace TextStatistics
 {
@@ -61,6 +62,7 @@ namespace TextStatistics
                     Console.WriteLine("Redis: accessed DB {0} by contextId {1}", dbNumber, id);
 
                     double rank = double.Parse(database.StringGet(id + DB_PREFIX_RANK));
+
                     textNum++;
                     highRankPart += status == "true" ? 1 : 0;
                     avgRank = (avgRank * (textNum - 1) + rank) / textNum;
