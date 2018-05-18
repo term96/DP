@@ -30,7 +30,7 @@ namespace TextRankCalc
                     autoDelete: false
                 );
                 channel.QueueBind(
-                    queue: TEXTRANK_API_EXCHANGE,
+                    queue: TEXTRANK_QUEUE,
                     exchange: TEXTRANK_API_EXCHANGE,
                     routingKey: TEXTRANK_ROUTING_KEY_IN
                 );

@@ -50,13 +50,13 @@ namespace TextProcessingLimiter
                     var properties = channel.CreateBasicProperties();
                     properties.Persistent = true;
 
-                    var newBody = Encoding.UTF8.GetString(body) + textsLeft > 0 ? ";true" : ";false";
+                    var newBody = Encoding.UTF8.GetString(body) + (textsLeft > 0 ? ";true" : ";false");
 
                     channel.BasicPublish(
                         exchange: TEXTRANK_API_EXCHANGE,
                         routingKey: TEXTRANK_ROUTING_KEY,
                         basicProperties: properties,
-                        body: Encoding.UTF8.GetBytes(newBody);
+                        body: Encoding.UTF8.GetBytes(newBody)
                     );
 
                     textsLeft--;
