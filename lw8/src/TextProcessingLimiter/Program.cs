@@ -59,7 +59,10 @@ namespace TextProcessingLimiter
                         body: Encoding.UTF8.GetBytes(newBody)
                     );
 
-                    textsLeft--;
+                    if (textsLeft > 0)
+                    {
+                        textsLeft--;
+                    }
 
                     channel.BasicAck(
                         deliveryTag: ea.DeliveryTag,

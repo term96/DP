@@ -21,7 +21,6 @@ namespace TextStatistics
         static int highRankPart;
         static double avgRank;
 
-
         static void Main(string[] args)
         {
             IDatabase db = redis.GetDatabase(0);
