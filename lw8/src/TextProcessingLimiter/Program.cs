@@ -17,6 +17,7 @@ namespace TextProcessingLimiter
         static readonly String TEXTRANK_ROUTING_KEY_OUT = "ProcessingAccepted";
         static readonly ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
         static readonly ConnectionFactory rabbit = new ConnectionFactory() { HostName = "localhost" };
+        static readonly String DB_PREFIX_STATUS = "-status";
 
         static int textsLeft = 5;
 
@@ -41,9 +42,11 @@ namespace TextProcessingLimiter
                     var properties = channel.CreateBasicProperties();
                     properties.Persistent = true;
 
-                    var newBody = Encoding.UTF8.GetString(body) + (textsLeft > 0 ? ";true" : ";false");
+                    string id = Encoding.UTF8.GetString(body);
+                    var newBody = id + (textsLeft > 0 ? ";true" : ";false");
 
                     channel.BasicPublish(exchange: TEXTRANK_API_EXCHANGE, routingKey: TEXTRANK_ROUTING_KEY_OUT, basicProperties: properties, body: Encoding.UTF8.GetBytes(newBody));
+                    SaveTextStatus(id, textsLeft > 0);
 
                     if (textsLeft > 0)
                     {
@@ -73,6 +76,12 @@ namespace TextProcessingLimiter
                     Console.ReadKey(true);
                 }
             }
+        }
+
+        private static void SaveTextStatus(String contextId, bool accepted)
+        {
+            IDatabase db = redis.GetDatabase(GetDBNumber(contextId));
+            db.StringSet(contextId + DB_PREFIX_STATUS, accepted ? "accepted" : "limit_exceed");
         }
     }
 }

@@ -18,6 +18,7 @@ namespace TextStatistics
         static readonly String DB_HIGHRANKPART_KEY = "HighRankPart";
         static readonly String DB_AVGRANK_KEY = "AvgRank";
         static readonly String DB_PREFIX_RANK = "-rank";
+        static readonly String DB_PREFIX_STATUS = "-status";
 
         static int textNum;
         static int highRankPart;
@@ -67,6 +68,7 @@ namespace TextStatistics
                     highRankPart += status == "true" ? 1 : 0;
                     avgRank = (avgRank * (textNum - 1) + rank) / textNum;
                     saveData();
+                    SaveTextStatus(id);
 
                     channel.BasicAck(
                         deliveryTag: ea.DeliveryTag,
@@ -101,6 +103,12 @@ namespace TextStatistics
                 byte[] result = md5.ComputeHash(Encoding.UTF8.GetBytes(contextId));
                 return (result[0] ^ result[4] ^ result[8] ^ result[12]) % databases;
             }
+        }
+
+        private static void SaveTextStatus(String contextId)
+        {
+            IDatabase db = redis.GetDatabase(GetDBNumber(contextId));
+            db.StringSet(contextId + DB_PREFIX_STATUS, "done");
         }
     }
 }

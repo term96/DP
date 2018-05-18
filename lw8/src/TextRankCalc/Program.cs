@@ -13,6 +13,7 @@ namespace TextRankCalc
         static readonly String TEXTRANK_ROUTING_KEY_IN = "ProcessingAccepted";
         static readonly String TEXTRANK_ROUTING_KEY_OUT = "TextRankTask";
         static readonly ConnectionFactory rabbit = new ConnectionFactory() { HostName = "localhost" };
+        static readonly String DB_PREFIX_STATUS = "-status";
 
         static void Main(string[] args)
         {
@@ -53,6 +54,7 @@ namespace TextRankCalc
                             basicProperties: properties,
                             body: Encoding.UTF8.GetBytes(data[0])
                         );
+                        SaveTextStatus(id);
                     }
 
                     channel.BasicAck(
@@ -71,6 +73,12 @@ namespace TextRankCalc
                     Console.ReadKey(true);
                 }
             }
+        }
+
+        private static void SaveTextStatus(String contextId)
+        {
+            IDatabase db = redis.GetDatabase(GetDBNumber(contextId));
+            db.StringSet(contextId + DB_PREFIX_STATUS, "processing");
         }
     }
 }

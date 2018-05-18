@@ -24,6 +24,7 @@ namespace Backend.Controllers
         static readonly int SLEEP_MS = 50;
         static readonly String DB_PREFIX_TEXT = "-text";
         static readonly String DB_PREFIX_RANK = "-rank";
+        static readonly String DB_PREFIX_STATUS = "-status";
         static readonly String DB_TEXTNUM_KEY = "TextNum";
         static readonly String DB_HIGHRANKPART_KEY = "HighRankPart";
         static readonly String DB_AVGRANK_KEY = "AvgRank";
@@ -39,8 +40,8 @@ namespace Backend.Controllers
             return String.Format("{0};{1};{2}", textNum, highRankPart, avgRank);
         }
 
-        // GET api/values/rank/<id>
-        [HttpGet("rank/{id}")]
+        // GET api/values/status/<id>
+        [HttpGet("status/{id}")]
         public string Get(string id)
         {
             int dbNumber = GetDBNumber(id);
@@ -49,10 +50,15 @@ namespace Backend.Controllers
 
             for (int i = 0; i < MAX_ATTEMPTIONS; i++)
             {
-                if (db.KeyExists(id + DB_PREFIX_RANK))
+                if (db.KeyExists(id + DB_PREFIX_STATUS))
                 {
                     Response.StatusCode = (int) HttpStatusCode.OK;
-                    return db.StringGet(id + DB_PREFIX_RANK);
+                    string status = db.StringGet(id + DB_PREFIX_STATUS);
+                    if (status == "done")
+                    {
+                        return String.Format("{0};{1}", status, db.StringGet(i + DB_PREFIX_RANK));
+                    }
+                    return status;
                 }
                 Thread.Sleep(SLEEP_MS);
             }
@@ -72,6 +78,7 @@ namespace Backend.Controllers
 
             db.StringSet(id + DB_PREFIX_TEXT, value);
             SendMessage(id);
+            SaveTextStatus(id);
 
             return id;
         }
@@ -107,6 +114,12 @@ namespace Backend.Controllers
                 byte[] result = md5.ComputeHash(Encoding.UTF8.GetBytes(contextId));
                 return (result[0] ^ result[4] ^ result[8] ^ result[12]) % databases;
             }
+        }
+
+        private static void SaveTextStatus(String contextId)
+        {
+            IDatabase db = redis.GetDatabase(GetDBNumber(contextId));
+            db.StringSet(contextId + DB_PREFIX_STATUS, "uploaded");
         }
     }
 }

@@ -23,14 +23,24 @@ namespace Frontend.Controllers
             using(HttpClient client = new HttpClient())
             {
                 client.BaseAddress = new Uri(BASE_ADDRESS);
-                var request = client.GetAsync("api/values/rank/" + id).Result;
+                var request = client.GetAsync("api/values/status/" + id).Result;
                 if (request.StatusCode == HttpStatusCode.OK)
                 {
-                    var resp = request.Content.ReadAsStringAsync().Result;
-                    ViewData["Rank"] = resp;
+                    string resp = request.Content.ReadAsStringAsync().Result;
+                    if (resp.StartsWith("done"))
+                    {
+                        string[] data = resp.Split(';');
+                        ViewData["Status"] = data[0];
+                        ViewData["Rank"] = data[1];
+                    }
+                    else
+                    {
+                        ViewData["Status"] = resp;
+                    }
+
                     return View();
                 }
-                return NotFound("Оценка текста не найдена, попробуйте обновить страницу");
+                return NotFound("Текст не найден, попробуйте обновить страницу");
             }
         }
 
