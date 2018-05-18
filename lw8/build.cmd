@@ -72,6 +72,24 @@ move build-%1 ../../build-%1/TextStatistics
 cd ../../
 echo:
 
+echo BUILDING TEXTPROCESSINGLIMITER
+cd src/textprocessinglimiter/
+dotnet clean
+dotnet publish -c Release -o build-%1
+if errorlevel 1 goto failed
+move build-%1 ../../build-%1/TextProcessingLimiter
+cd ../../
+echo:
+
+echo BUILDING TEXTSUCCESSMARKER
+cd src/textsuccessmarker/
+dotnet clean
+dotnet publish -c Release -o build-%1
+if errorlevel 1 goto failed
+move build-%1 ../../build-%1/TextSuccessMarker
+cd ../../
+echo:
+
 echo COPIYNG CONFIGS
 cd src/
 @echo off
