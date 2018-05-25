@@ -40,32 +40,25 @@ namespace TextProcessingLimiter
                 var backendConsumer = new EventingBasicConsumer(channel);
                 backendConsumer.Received += (model, ea) =>
                 {
-                    try
+                    var body = ea.Body;
+                    string id = Encoding.UTF8.GetString(body);
+                    Console.WriteLine("\n\nStart: {0}", id);
+                    var newBody = id + (textsLeft > 0 ? ";true" : ";false");
+
+                    Thread.Sleep(400);
+                    SaveTextStatus(id, textsLeft > 0);
+
+                    var properties = channel.CreateBasicProperties();
+                    properties.Persistent = true;
+                    channel.BasicPublish(exchange: TEXTRANK_API_EXCHANGE, routingKey: TEXTRANK_ROUTING_KEY_OUT, basicProperties: properties, body: Encoding.UTF8.GetBytes(newBody));
+
+                    if (textsLeft > 0)
                     {
-                        var body = ea.Body;
-                        string id = Encoding.UTF8.GetString(body);
-                        Console.WriteLine("\n\nStart: {0}", id);
-                        var newBody = id + (textsLeft > 0 ? ";true" : ";false");
-
-                        Thread.Sleep(400);
-                        SaveTextStatus(id, textsLeft > 0);
-
-                        var properties = channel.CreateBasicProperties();
-                        properties.Persistent = true;
-                        channel.BasicPublish(exchange: TEXTRANK_API_EXCHANGE, routingKey: TEXTRANK_ROUTING_KEY_OUT, basicProperties: properties, body: Encoding.UTF8.GetBytes(newBody));
-
-                        if (textsLeft > 0)
-                        {
-                            textsLeft--;
-                        }
-
-                        channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
-                        Console.WriteLine("End: {0}\n\n", id);
+                        textsLeft--;
                     }
-                    catch (System.Exception e)
-                    {
-                        Console.WriteLine(e.Message);
-                    }
+
+                    channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
+                    Console.WriteLine("End: {0}\n\n", id);
                 };
                 channel.BasicConsume(queue: BACKEND_QUEUE, autoAck: false, consumer: backendConsumer);
 
