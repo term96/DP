@@ -32,10 +32,14 @@ namespace Frontend.Controllers
                         string[] data = resp.Split(';');
                         ViewData["Status"] = data[0];
                         ViewData["Rank"] = data[1];
+                        ViewData["ReloadPage"] = false;
+                        Console.WriteLine("Resp: " + resp);
                     }
                     else
                     {
                         ViewData["Status"] = resp;
+                        ViewData["Rank"] = "-";
+                        ViewData["ReloadPage"] = !resp.StartsWith("limit_exceed");
                     }
 
                     return View();

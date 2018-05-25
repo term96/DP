@@ -5,6 +5,7 @@ using RabbitMQ.Client.Events;
 using StackExchange.Redis;
 using System.Collections.Generic;
 using System.Security.Cryptography;
+using System.Threading;
 
 namespace VowelConsCounter
 {
@@ -22,6 +23,7 @@ namespace VowelConsCounter
             'а', 'о', 'и', 'е', 'ё', 'э', 'ы', 'у', 'ю', 'я'
         };
         static readonly String DB_PREFIX_TEXT = "-text";
+        static readonly String DB_PREFIX_STATUS = "-status";
 
         static void Main(string[] args)
         {
@@ -49,6 +51,10 @@ namespace VowelConsCounter
                 {
                     var body = ea.Body;
                     string id = Encoding.UTF8.GetString(body);
+                    Console.WriteLine("\n\nStart: {0}", id);
+
+                    Thread.Sleep(400);
+                    SaveTextStatus(id);
 
                     int dbNumber = GetDBNumber(id);
                     IDatabase db = redis.GetDatabase(db: dbNumber);
@@ -82,6 +88,7 @@ namespace VowelConsCounter
                         deliveryTag: ea.DeliveryTag,
                         multiple: false
                     );
+                    Console.WriteLine("End: {0}\n\n", id);
                 };
                 channel.BasicConsume(
                     queue: TEXTRANK_QUEUE,
@@ -104,6 +111,13 @@ namespace VowelConsCounter
                 byte[] result = md5.ComputeHash(Encoding.UTF8.GetBytes(contextId));
                 return (result[0] ^ result[4] ^ result[8] ^ result[12]) % databases;
             }
+        }
+
+        private static void SaveTextStatus(String contextId)
+        {
+            Console.WriteLine("SaveTextStatus: " + "processing");
+            IDatabase db = redis.GetDatabase(GetDBNumber(contextId));
+            db.StringSet(contextId + DB_PREFIX_STATUS, "processing");
         }
     }
 }

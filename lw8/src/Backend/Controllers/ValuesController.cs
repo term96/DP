@@ -54,9 +54,10 @@ namespace Backend.Controllers
                 {
                     Response.StatusCode = (int) HttpStatusCode.OK;
                     string status = db.StringGet(id + DB_PREFIX_STATUS);
+
                     if (status == "done")
                     {
-                        return String.Format("{0};{1}", status, db.StringGet(i + DB_PREFIX_RANK));
+                        return String.Format("{0};{1}", status, db.StringGet(id + DB_PREFIX_RANK));
                     }
                     return status;
                 }
@@ -71,15 +72,21 @@ namespace Backend.Controllers
         public string Post(string value)
         {
             var id = Guid.NewGuid().ToString();
+            Console.WriteLine("\n\nStart: {0}", id);
 
             int dbNumber = GetDBNumber(id);
             IDatabase db = redis.GetDatabase(db: dbNumber);
             Console.WriteLine("Redis: accessed DB {0} by contextId {1}", dbNumber, id);
 
+            if (value == null)
+            {
+                value = "";
+            }
             db.StringSet(id + DB_PREFIX_TEXT, value);
-            SendMessage(id);
             SaveTextStatus(id);
+            SendMessage(id);
 
+            Console.WriteLine("End: {0}\n\n", id);
             return id;
         }
 
@@ -118,6 +125,7 @@ namespace Backend.Controllers
 
         private static void SaveTextStatus(String contextId)
         {
+            Console.WriteLine("SaveTextStatus: " + "uploaded");
             IDatabase db = redis.GetDatabase(GetDBNumber(contextId));
             db.StringSet(contextId + DB_PREFIX_STATUS, "uploaded");
         }

@@ -3,16 +3,18 @@ using System.Text;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using StackExchange.Redis;
+using System.Security.Cryptography;
+using System.Threading;
 
 namespace TextProcessingLimiter
 {
     class Program
     {
         static readonly String BACKEND_API_EXCHANGE = "backend_api";
-        static readonly String BACKEND_QUEUE = "text_processing_limiter";
+        static readonly String BACKEND_QUEUE = "text_processing_limiter_backend";
         static readonly String BACKEND_ROUTING_KEY = "TextCreated";
         static readonly String TEXTRANK_API_EXCHANGE = "textrank_api";
-        static readonly String TEXTRANK_QUEUE = "text_processing_limiter";
+        static readonly String TEXTRANK_QUEUE = "text_processing_limiter_textrank";
         static readonly String TEXTRANK_ROUTING_KEY_IN = "TextSuccessMarked";
         static readonly String TEXTRANK_ROUTING_KEY_OUT = "ProcessingAccepted";
         static readonly ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
@@ -38,22 +40,32 @@ namespace TextProcessingLimiter
                 var backendConsumer = new EventingBasicConsumer(channel);
                 backendConsumer.Received += (model, ea) =>
                 {
-                    var body = ea.Body;
-                    var properties = channel.CreateBasicProperties();
-                    properties.Persistent = true;
-
-                    string id = Encoding.UTF8.GetString(body);
-                    var newBody = id + (textsLeft > 0 ? ";true" : ";false");
-
-                    channel.BasicPublish(exchange: TEXTRANK_API_EXCHANGE, routingKey: TEXTRANK_ROUTING_KEY_OUT, basicProperties: properties, body: Encoding.UTF8.GetBytes(newBody));
-                    SaveTextStatus(id, textsLeft > 0);
-
-                    if (textsLeft > 0)
+                    try
                     {
-                        textsLeft--;
-                    }
+                        var body = ea.Body;
+                        string id = Encoding.UTF8.GetString(body);
+                        Console.WriteLine("\n\nStart: {0}", id);
+                        var newBody = id + (textsLeft > 0 ? ";true" : ";false");
 
-                    channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
+                        Thread.Sleep(400);
+                        SaveTextStatus(id, textsLeft > 0);
+
+                        var properties = channel.CreateBasicProperties();
+                        properties.Persistent = true;
+                        channel.BasicPublish(exchange: TEXTRANK_API_EXCHANGE, routingKey: TEXTRANK_ROUTING_KEY_OUT, basicProperties: properties, body: Encoding.UTF8.GetBytes(newBody));
+
+                        if (textsLeft > 0)
+                        {
+                            textsLeft--;
+                        }
+
+                        channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
+                        Console.WriteLine("End: {0}\n\n", id);
+                    }
+                    catch (System.Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
                 };
                 channel.BasicConsume(queue: BACKEND_QUEUE, autoAck: false, consumer: backendConsumer);
 
@@ -78,8 +90,19 @@ namespace TextProcessingLimiter
             }
         }
 
+        private static int GetDBNumber(String contextId)
+        {
+            const int databases = 16;
+            using(MD5 md5 = new MD5CryptoServiceProvider())
+            {
+                byte[] result = md5.ComputeHash(Encoding.UTF8.GetBytes(contextId));
+                return (result[0] ^ result[4] ^ result[8] ^ result[12]) % databases;
+            }
+        }
+
         private static void SaveTextStatus(String contextId, bool accepted)
         {
+            Console.WriteLine("SaveTextStatus: " + (accepted ? "accepted" : "limit_exceed"));
             IDatabase db = redis.GetDatabase(GetDBNumber(contextId));
             db.StringSet(contextId + DB_PREFIX_STATUS, accepted ? "accepted" : "limit_exceed");
         }

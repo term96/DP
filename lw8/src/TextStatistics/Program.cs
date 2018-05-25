@@ -57,6 +57,7 @@ namespace TextStatistics
                     string[] data = Encoding.UTF8.GetString(body).Split(';');
                     string id = data[0];
                     string status = data[1];
+                    Console.WriteLine("\n\nStart: {0}", id);
 
                     int dbNumber = GetDBNumber(id);
                     IDatabase database = redis.GetDatabase(db: dbNumber);
@@ -74,6 +75,7 @@ namespace TextStatistics
                         deliveryTag: ea.DeliveryTag,
                         multiple: false
                     );
+                    Console.WriteLine("End: {0}\n\n", id);
                 };
                 channel.BasicConsume(
                     queue: TEXTRANK_QUEUE,
@@ -107,6 +109,7 @@ namespace TextStatistics
 
         private static void SaveTextStatus(String contextId)
         {
+            Console.WriteLine("SaveTextStatus: " + "done");
             IDatabase db = redis.GetDatabase(GetDBNumber(contextId));
             db.StringSet(contextId + DB_PREFIX_STATUS, "done");
         }

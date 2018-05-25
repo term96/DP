@@ -1,6 +1,15 @@
 @{
     ViewData["Title"] = "Результат";
 }
+<script>
+    var reload = @ViewData["ReloadPage"].ToString().ToLower();
+    if (reload)
+    {
+        setTimeout(() => {
+            location.reload();
+        }, 300);
+    }
+</script>
 <div>
     <span>Статус: @ViewData["Status"]</span>
     <span>Оценка: @ViewData["Rank"]</span>
