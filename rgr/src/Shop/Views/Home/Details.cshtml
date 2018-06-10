@@ -24,4 +24,8 @@
         <span class="item-property">RAM (ГБ):         @item.ram</span>
         <span class="item-property">Батарея (мА⋅ч):   @item.battery</span>
     </div>
+    @if (item.available > 0)
+    {
+        @Html.ActionLink("Добавить в корзину", "AddToCart", routeValues: new { id = item.id }, htmlAttributes: new { @class="button-add" })
+    }
 </div>

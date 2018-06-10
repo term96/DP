@@ -50,6 +50,58 @@ namespace Shop.Controllers
             }
         }
 
+        [Route("AddToCart/{id}")]
+        public IActionResult AddToCart(string id)
+        {
+            try
+            {
+                var db = GetRealmInstance();
+                var cart = GetOrCreateCart(db);
+                var allItems = db.All<PhoneModel>().Where(i => i.id.Equals(id));
+                var item = allItems.Count() > 0 ? allItems.First() : null;
+                if (item == null)
+                {
+                    return NotFound("Указанный товар не найден");
+                }
+                db.Write(() =>
+                {
+                    cart.items.Add(item);
+                });
+                return RedirectToAction("Cart");
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return NotFound("Ошибка при добавлении товара в корзину");
+            }
+        }
+
+        [Route("RemoveFromCart/{id}")]
+        public IActionResult RemoveFromCart(string id)
+        {
+            try
+            {
+                var db = GetRealmInstance();
+                var cart = GetOrCreateCart(db);
+                var allItems = db.All<PhoneModel>().Where(i => i.id.Equals(id));
+                var item = allItems.Count() > 0 ? allItems.First() : null;
+                if (item == null)
+                {
+                    return NotFound("Указанный товар не найден");
+                }
+                db.Write(() =>
+                {
+                    cart.items.Remove(item);
+                });
+                return RedirectToAction("Cart");
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return NotFound("Ошибка при добавлении товара в корзину");
+            }
+        }
+
         [HttpGet("Cart")]
         public IActionResult Cart()
         {

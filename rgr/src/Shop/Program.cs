@@ -22,7 +22,6 @@ namespace Shop
             });
             thread.Start();
             BuildWebHost(args).Run();
-            thread.Abort();
         }
 
         public static IWebHost BuildWebHost(string[] args) =>

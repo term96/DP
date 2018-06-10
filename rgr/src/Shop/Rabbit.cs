@@ -64,13 +64,13 @@ public class Rabbit
 			{
 				case ITEM_ADDED_ROUTING_KEY:
 					AddOrUpdateItem(item, update: false);
-					return;
+					break;
 				case ITEM_REMOVED_ROUTING_KEY:
 					RemoveItem(item.id);
-					return;
+					break;
 				case ITEM_CHANGED_ROUTING_KEY:
 					AddOrUpdateItem(item, update: true);
-					return;
+					break;
 			}
 
 			channel.BasicAck(ea.DeliveryTag, false);

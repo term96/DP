@@ -94,18 +94,11 @@
     color: #f00;
 }
 
-.button-submit,
 .button-remove,
-.button-edit,
-.button-details {
-    display: inline-block;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.button-remove {
-    color: #f00;
-}
-
-.button-details {
+.button-details,
+.button-add {
+    display: block;
     margin-top: 0.5em;
+    color: #c00;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }

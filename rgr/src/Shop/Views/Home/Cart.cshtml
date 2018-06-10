@@ -24,6 +24,7 @@
                     <span class="item-property">@item.system</span>
                     <span class="item-property">@item.screen</span>
                     @Html.ActionLink("Подробная информация", "Details", routeValues: new { id = item.id }, htmlAttributes: new { @class="button-details" })
+                    @Html.ActionLink("Удалить", "RemoveFromCart", routeValues: new { id = item.id }, htmlAttributes: new { @class="button-remove" })
                 </div>
             </li>
         }
