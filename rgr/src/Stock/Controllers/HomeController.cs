@@ -11,6 +11,8 @@ namespace Stock.Controllers
 {
     public class HomeController : Controller
     {
+        private static readonly Rabbit rabbit = Rabbit.GetInstance();
+
         [Route("")]
         public IActionResult Index()
         {
@@ -32,6 +34,8 @@ namespace Stock.Controllers
                 {
                     return NotFound("Указанный товар не найден");
                 }
+
+                rabbit.BroadcastEvent(Rabbit.EventType.ITEM_REMOVED, item);
 
                 db.Write(() => 
                 {
@@ -89,6 +93,7 @@ namespace Stock.Controllers
             
             ViewBag.Result = "SUCCESS";
             ViewBag.Item = item;
+            rabbit.BroadcastEvent(Rabbit.EventType.ITEM_CHANGED, item);
             return View();
         }
 
@@ -118,6 +123,7 @@ namespace Stock.Controllers
             }
             
             ViewBag.Result = "SUCCESS";
+            rabbit.BroadcastEvent(Rabbit.EventType.ITEM_ADDED, item);
             return View();
         }
 
