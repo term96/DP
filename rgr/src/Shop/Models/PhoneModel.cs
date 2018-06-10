@@ -1,6 +1,6 @@
 using Realms;
 
-namespace Stock.Models
+namespace Shop.Models
 {
 	public class PhoneModel : RealmObject
 	{

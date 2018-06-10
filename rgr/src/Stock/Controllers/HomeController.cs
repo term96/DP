@@ -14,7 +14,7 @@ namespace Stock.Controllers
         [Route("")]
         public IActionResult Index()
         {
-            var db = Realm.GetInstance();
+            var db = GetRealmInstance();
             var items = db.All<PhoneModel>().ToList();
             ViewBag.Items = items != null ? items : new List<PhoneModel>();
             return View();
@@ -25,8 +25,9 @@ namespace Stock.Controllers
         {
             try
             {
-                var db = Realm.GetInstance();
-                var item = db.All<PhoneModel>().Where(i => i.id.Equals(id)).First();
+                var db = GetRealmInstance();
+                var allItems = db.All<PhoneModel>().Where(i => i.id.Equals(id));
+                var item = allItems.Count() > 0 ? allItems.First() : null;
                 if (item == null)
                 {
                     return NotFound("Указанный товар не найден");
@@ -49,24 +50,23 @@ namespace Stock.Controllers
         [HttpGet("Edit/{id}")]
         public IActionResult Edit(string id)
         {
-            PhoneModel item;
             try
             {
-                var db = Realm.GetInstance();
-                item = db.All<PhoneModel>().Where(i => i.id.Equals(id)).First();
+                var db = GetRealmInstance();
+                var allItems = db.All<PhoneModel>().Where(i => i.id.Equals(id));
+                PhoneModel item = allItems.Count() > 0 ? allItems.First() : null;
                 if (item == null)
                 {
                     return NotFound("Указанный товар не найден");
                 }
+                ViewBag.Item = item;
+                return View();
             }
             catch(Exception e)
             {
                 Console.WriteLine(e.Message);
                 return NotFound("Ошибка при поиске товара");
             }
-
-            ViewBag.Item = item;
-            return View();
         }
 
         [HttpPost("Edit/{id}")]
@@ -74,7 +74,7 @@ namespace Stock.Controllers
         {
             try
             {
-                var db = Realm.GetInstance();
+                var db = GetRealmInstance();
                 db.Write(() => 
                 {
                     db.Add(item, update: true);
@@ -104,7 +104,7 @@ namespace Stock.Controllers
             item.id = Guid.NewGuid().ToString();
             try
             {
-                var db = Realm.GetInstance();
+                var db = GetRealmInstance();
                 db.Write(() => 
                 {
                     db.Add(item);
@@ -119,6 +119,11 @@ namespace Stock.Controllers
             
             ViewBag.Result = "SUCCESS";
             return View();
+        }
+
+        private Realm GetRealmInstance()
+        {
+            return Realm.GetInstance("stock");
         }
     }
 }

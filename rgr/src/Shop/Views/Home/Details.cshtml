@@ -1,0 +1,27 @@
+﻿@{
+    var item = ViewBag.Item;
+    ViewData["Title"] = @item.vendor + ' ' + @item.model;
+}
+
+<h2 class="item-header" style="margin-top: 20px">@item.vendor @item.model</h2>
+<img src="@item.imgUrl" />
+<div class="item-details">
+    @if (item.available > 0)
+    {
+        <h4>@item.price руб.</h4>
+    }
+    else
+    {
+        <h4 class="item-sold">Распродано</h4>
+    }
+    <div class="item-details">
+        <span class="item-property">Производитель:    @item.vendor</span>
+        <span class="item-property">Модель:           @item.model</span>
+        <span class="item-property">ОС:               @item.system</span>
+        <span class="item-property">Процессор:        @item.processor</span>
+        <span class="item-property">Экран:            @item.screen</span>
+        <span class="item-property">Камера:           @item.camera</span>
+        <span class="item-property">RAM (ГБ):         @item.ram</span>
+        <span class="item-property">Батарея (мА⋅ч):   @item.battery</span>
+    </div>
+</div>

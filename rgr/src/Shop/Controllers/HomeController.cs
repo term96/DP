@@ -5,33 +5,86 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Shop.Models;
+using Realms;
 
 namespace Shop.Controllers
 {
     public class HomeController : Controller
     {
+        [Route("")]
         public IActionResult Index()
         {
-            return View();
+            try
+            {
+                var db = GetRealmInstance();
+                var items = db.All<PhoneModel>().OrderBy((item) => item.price).ToList();
+                ViewBag.Items = items != null ? items : new List<PhoneModel>();
+                return View();
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return NotFound("Ошибка при получении списка товаров");
+            }
         }
 
-        public IActionResult About()
+        [Route("Details/{id}")]
+        public IActionResult Details(string id)
         {
-            ViewData["Message"] = "Your application description page.";
-
-            return View();
+            try
+            {
+                var db = GetRealmInstance();
+                var allItems = db.All<PhoneModel>().Where(i => i.id.Equals(id));
+                var item = allItems.Count() > 0 ? allItems.First() : null;
+                if (item == null)
+                {
+                    return NotFound("Указанный товар не найден");
+                }
+                ViewBag.Item = item;
+                return View();
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return NotFound("Ошибка при поиске товара");
+            }
         }
 
-        public IActionResult Contact()
+        [HttpGet("Cart")]
+        public IActionResult Cart()
         {
-            ViewData["Message"] = "Your contact page.";
-
-            return View();
+            try
+            {
+                var db = GetRealmInstance();
+                var cart = GetOrCreateCart(db);
+                ViewBag.Items = cart.items != null ? cart.items : new List<PhoneModel>();
+                return View();
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return NotFound("Ошибка при загрузке корзины");
+            }
         }
 
-        public IActionResult Error()
+        private CartModel GetOrCreateCart(Realm db)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            var allCarts = db.All<CartModel>();
+            var cart = allCarts.Count() > 0 ? allCarts.First() : null;
+            if (cart == null)
+            {
+                cart = new CartModel();
+                db.Write(() =>
+                {
+                    db.Add(cart);
+                });
+            }
+            return cart;
+        }
+
+        private Realm GetRealmInstance()
+        {
+            return Realm.GetInstance("shop");
         }
     }
 }

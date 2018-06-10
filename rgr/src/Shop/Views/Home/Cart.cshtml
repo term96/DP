@@ -1,8 +1,8 @@
 ﻿@{
-    ViewData["Title"] = "Главная";
+    ViewData["Title"] = "Корзина";
 }
 
-<h2>Все товары</h2>
+<h2>Корзина</h2>
 <ul class="item-list">
     @if (ViewBag.Items.Count > 0)
     {
@@ -30,6 +30,6 @@
     }
     else
     {
-        <p class="no-items-text">Список товаров пуст</p>
+        <p class="no-items-text">Корзина пуста</p>
     }
 </ul>
