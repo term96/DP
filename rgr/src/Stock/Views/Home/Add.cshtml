@@ -1,0 +1,32 @@
+﻿@{
+    ViewData["Title"] = "Добавление";
+}
+
+<h2>Добавление товара</h2>
+<form class="item" method="POST">
+    <label class="item-property">Производитель:    <input class="item-property-field" name="vendor" placeholder="Xiaomi" required /></label>
+    <label class="item-property">Модель:           <input class="item-property-field" name="model" placeholder="Redmi Note 4X" required /></label>
+    <label class="item-property">ОС:               <input class="item-property-field" name="system" placeholder="Android 7.0" required /></label>
+    <label class="item-property">Процессор:        <input class="item-property-field" name="processor" placeholder="8x Qualcomm Snapdragon 625 MSM8953" required /></label>
+    <label class="item-property">Экран:            <input class="item-property-field" name="screen" placeholder='5.5", разрешение 1920x1080' required /></label>
+    <label class="item-property">Камера:           <input class="item-property-field" name="camera" placeholder="13 МП" required /></label>
+    <label class="item-property">RAM (ГБ):         <input class="item-property-field" name="ram" placeholder="3" type="number" required /></label>
+    <label class="item-property">Батарея (мА⋅ч):    <input class="item-property-field" name="battery" placeholder="4100" type="number" required /></label>
+    <label class="item-property">Стоимость (руб.): <input class="item-property-field" name="price" placeholder="9050" type="number" required /></label>
+    <label class="item-property">В наличии (шт.):  <input class="item-property-field" name="available" placeholder="100" type="number" required /></label>
+    <label class="item-property">Картинка (URL):   <input class="item-property-field" name="imgUrl" placeholder="http://img.ya.ru/123" required /></label>
+    <input class="button-submit" type="submit" value="Добавить" />
+</form>
+
+@if (ViewBag.Result != null)
+{
+    
+    @if (ViewBag.Result.Equals("SUCCESS"))
+    {
+        <p class="result-success">Товар добавлен</p>
+    }
+    else
+    {
+        <p class="result-error">Ошибка добавления. Проверьте введённые данные</p>
+    }
+}

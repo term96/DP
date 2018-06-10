@@ -1,0 +1,26 @@
+﻿@{
+    ViewData["Title"] = "Просмотр";
+}
+
+<h2>Просмотр товаров</h2>
+<ul class="item-list">
+    @if (ViewBag.Items.Count > 0)
+    {
+        @foreach (PhoneModel item in ViewBag.Items)
+        {
+            <li>
+                <img class="item-image-small" src="@item.imgUrl" />
+                <div class="item-summary">
+                    <h3 class="item-header">@item.vendor @item.model</h3>
+                    <span class="item-summary-span">В наличии (шт.): @item.available</span>
+                    <span class="item-summary-span">@Html.ActionLink("Удалить", "Remove", routeValues: new { id = item.id }, htmlAttributes: new { @class="button-remove" })</span>
+                    <span class="item-summary-span">@Html.ActionLink("Редактировать", "Edit", routeValues: new { id = item.id }, htmlAttributes: new { @class="button-edit" })</span>
+                </div>
+            </li>
+        }
+    }
+    else
+    {
+        <p class="no-items-text">Список товаров пуст</p>
+    }
+</ul>

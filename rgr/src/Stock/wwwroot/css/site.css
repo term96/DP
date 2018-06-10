@@ -1,0 +1,107 @@
+﻿body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+}
+
+/* Wrapping element */
+/* Set some basic padding to keep content from hitting the edges */
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Carousel */
+.carousel-caption p {
+    font-size: 20px;
+    line-height: 1.4;
+}
+
+/* Make .svg files in the carousel display properly in older browsers */
+.carousel-inner .item img[src$=".svg"] {
+    width: 100%;
+}
+
+/* QR code generator */
+#qrCode {
+    margin: 15px;
+}
+
+/* Hide/rearrange for smaller screens */
+@media screen and (max-width: 767px) {
+    /* Hide captions */
+    .carousel-caption {
+        display: none;
+    }
+}
+
+.item-image-small {
+    display: inline-block;
+    width: 150px;
+    height: auto;
+    vertical-align: top;
+}
+
+.item-summary {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.item-summary-span {
+    display: block;
+}
+
+.item-list {
+    margin-top: 1em;
+    padding-left: 0;
+    list-style-type: none;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 16px;
+    width: auto;
+}
+
+.item-list li {
+    margin-top: 2em;
+}
+
+.item-list li:first-child {
+    margin-top: 0;
+}
+
+.item-property,
+.button-submit {
+    display: block;
+    width: 450px;
+    margin-top: 1em;
+}
+
+.item-property-field {
+    width: 300px;
+    float: right;
+}
+
+.button-submit {
+    width: auto;
+}
+
+.result-success,
+.result-error {
+    margin: 1em 0;
+}
+
+.result-success {
+    color: #0c0;
+}
+
+.result-error {
+    color: #f00;
+}
+
+.button-submit,
+.button-remove,
+.button-edit {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.button-remove {
+    color: #f00;
+}
