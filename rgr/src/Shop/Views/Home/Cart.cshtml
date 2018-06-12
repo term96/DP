@@ -8,14 +8,13 @@
     {
         @foreach (PhoneModel item in ViewBag.Items)
         {
-
             <li>
                 <img class="item-image-small" src="@item.imgUrl" />
                 <div class="item-summary">
                     <h3 class="item-header">@item.vendor @item.model</h3>
                     @if (item.available > 0)
                     {
-                        <h4>@item.price руб.</h4>
+                        <h4>@item.price руб. (@item.available в наличии)</h4>
                     }
                     else
                     {
@@ -28,6 +27,13 @@
                 </div>
             </li>
         }
+        <h3 class="order-header">Сделать заказ: </h3>
+        <form action="MakeOrder/@ViewBag.Items.Count" method="POST">
+            <label class="order-property">Сумма (руб.): <input class="order-property-field" value="@ViewBag.Sum" disabled required /></label>
+            <label class="order-property">Адрес:        <input class="order-property-field" name="address" placeholder="ул. Уличная, д. 21" required /></label>
+            <label class="order-property">Контакты:     <input class="order-property-field" name="contacts" placeholder="Телефон: +79316999888" required /></label>
+            <input class="button-order" type="submit" value="Заказать" />
+        </form>
     }
     else
     {

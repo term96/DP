@@ -15,13 +15,9 @@ namespace Shop
     {
         public static void Main(string[] args)
         {
-            Thread thread = new Thread(() =>
-            {
-                Thread.CurrentThread.IsBackground = true;
-                Rabbit.GetInstance();
-            });
-            thread.Start();
+            Rabbit rabbit = Rabbit.GetInstance();
             BuildWebHost(args).Run();
+            rabbit.StopRabbit();
         }
 
         public static IWebHost BuildWebHost(string[] args) =>

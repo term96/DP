@@ -1,0 +1,31 @@
+@{
+    ViewData["Title"] = "Мои заказы";
+}
+
+<h2>Мои заказы</h2>
+<ul class="item-list">
+    @if (ViewBag.Orders.Count > 0)
+    {
+        @foreach (OrderModel order in ViewBag.Orders)
+        {
+            <li>
+				<ul>
+					@foreach (PhoneModel item in order.items)
+					{
+						<li>
+							<div class="item-summary">
+								<h3 class="item-header">@item.vendor @item.model</h3>
+								<h4>@item.price руб.</h4>
+							</div>
+						</li>
+					}
+				</ul>
+				<label class="order-property">Статус: <input class="order-property-field" value="@order.status" disabled required /></label>
+            </li>
+        }
+    }
+    else
+    {
+        <p class="no-items-text">У Вас нет заказов</p>
+    }
+</ul>

@@ -96,9 +96,29 @@
 
 .button-remove,
 .button-details,
-.button-add {
+.button-add,
+.button-order {
     display: block;
     margin-top: 0.5em;
     color: #c00;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.order-header {
+    margin-top: 2em;
+}
+
+.order-property {
+    display: block;
+    width: 450px;
+    margin-top: 1em;
+}
+
+.order-property-field {
+    float: right;
+    width: 300px;
+}
+
+.button-order {
+    color: inherit;
 }

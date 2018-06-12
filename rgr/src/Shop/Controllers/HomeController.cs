@@ -28,6 +28,52 @@ namespace Shop.Controllers
             }
         }
 
+        [Route("MakeOrder/{count}")]
+        public IActionResult MakeOrder(int count, [FromForm] OrderModel order)
+        {
+            try
+            {
+                var db = GetRealmInstance();
+                var cart = GetOrCreateCart(db);
+                foreach (var item in cart.items)
+                {
+                    order.items.Add(new PhoneModel() { id = Guid.NewGuid().ToString(), vendor = item.vendor, model = item.model, price = item.price });
+                }
+                order.id = Guid.NewGuid().ToString();
+                order.status = "Не обработано";
+                db.Write(() =>
+                {
+                    db.Add(order);
+                    db.Remove(cart);
+                });
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return NotFound("Ошибка при оформлении заказа");
+            }
+            return RedirectToAction("Cart");
+        }
+
+        [HttpGet("Orders")]
+        public IActionResult Orders()
+        {
+            try
+            {
+                var db = GetRealmInstance();
+                var orders = db.All<OrderModel>();
+
+                ViewBag.Orders = orders.Count() > 0 ? orders.ToList() : new List<OrderModel>();
+                return View();
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return NotFound("Ошибка при загрузке списка заказов");
+            }
+        }
+
+
         [Route("Details/{id}")]
         public IActionResult Details(string id)
         {
@@ -109,7 +155,9 @@ namespace Shop.Controllers
             {
                 var db = GetRealmInstance();
                 var cart = GetOrCreateCart(db);
-                ViewBag.Items = cart.items != null ? cart.items : new List<PhoneModel>();
+                IList<PhoneModel> items = cart.items != null ? cart.items : new List<PhoneModel>();
+                ViewBag.Items = items;
+                ViewBag.Sum = items.Sum(i => { return i.price; });
                 return View();
             }
             catch(Exception e)

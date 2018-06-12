@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Text;
 using System.Linq;
 using Shop.Models;
@@ -16,34 +17,41 @@ public class Rabbit
 	private const string ITEM_REMOVED_ROUTING_KEY = "ItemRemoved";
 	private const string ITEM_CHANGED_ROUTING_KEY = "ItemChanged";
 	private static Rabbit instance;
+	private static IConnection connection;
+	private static IModel channel;
 
 	private Rabbit()
 	{
-		using (var connection = rabbit.CreateConnection())
-		using (var channel = connection.CreateModel())
-		{
-			channel.ExchangeDeclare
-			(
-				exchange: EXCHANGE_NAME,
-				type: "direct",
-				durable: true,
-				autoDelete: false
-			);
-			channel.QueueDeclare
-			(
-				queue: QUEUE_NAME,
-				durable: true,
-				exclusive: false,
-				autoDelete: false
-			);
-			channel.QueueBind(queue: QUEUE_NAME, exchange: EXCHANGE_NAME, routingKey: ITEM_ADDED_ROUTING_KEY);
-			channel.QueueBind(queue: QUEUE_NAME, exchange: EXCHANGE_NAME, routingKey: ITEM_REMOVED_ROUTING_KEY);
-			channel.QueueBind(queue: QUEUE_NAME, exchange: EXCHANGE_NAME, routingKey: ITEM_CHANGED_ROUTING_KEY);
-			CreateConsumer(channel);
-		}
+		connection = rabbit.CreateConnection();
+		channel = connection.CreateModel();
+		channel.ExchangeDeclare
+		(
+			exchange: EXCHANGE_NAME,
+			type: "direct",
+			durable: true,
+			autoDelete: false
+		);
+		channel.QueueDeclare
+		(
+			queue: QUEUE_NAME,
+			durable: true,
+			exclusive: false,
+			autoDelete: false
+		);
+		channel.QueueBind(queue: QUEUE_NAME, exchange: EXCHANGE_NAME, routingKey: ITEM_ADDED_ROUTING_KEY);
+		channel.QueueBind(queue: QUEUE_NAME, exchange: EXCHANGE_NAME, routingKey: ITEM_REMOVED_ROUTING_KEY);
+		channel.QueueBind(queue: QUEUE_NAME, exchange: EXCHANGE_NAME, routingKey: ITEM_CHANGED_ROUTING_KEY);
+		CreateConsumer();
 	}
 
-	private void CreateConsumer(IModel channel)
+	public void StopRabbit()
+	{
+		channel.Close();
+		connection.Close();
+		Console.WriteLine("Rabbit successfully stopped");
+	}
+
+	private void CreateConsumer()
 	{
 		var consumer = new EventingBasicConsumer(channel);
 		consumer.Received += (model, ea) =>
@@ -82,10 +90,6 @@ public class Rabbit
 			consumer: consumer
 		);
 		Console.WriteLine("Rabbit successfully started");
-		while(true)
-		{
-			Console.ReadKey();
-		}
 	}
 
 	private void AddOrUpdateItem(PhoneModel item, bool update)
