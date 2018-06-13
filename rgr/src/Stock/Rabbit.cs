@@ -12,21 +12,22 @@ public class Rabbit
 	private static readonly string ITEM_REMOVED_ROUTING_KEY = "ItemRemoved";
 	private static readonly string ITEM_CHANGED_ROUTING_KEY = "ItemChanged";
 	private static Rabbit instance;
+	private static IConnection connection;
+	private static IModel channel;
 
 	private Rabbit()
 	{
-		using (var connection = rabbit.CreateConnection())
-		using (var channel = connection.CreateModel())
-		{
-			channel.ExchangeDeclare
-			(
-				exchange: EXCHANGE_NAME,
-				type: "direct",
-				durable: true,
-				autoDelete: false
-			);
-			Console.WriteLine("Rabbit successfully started");
-		}
+		connection = rabbit.CreateConnection();
+		channel = connection.CreateModel();
+
+		channel.ExchangeDeclare
+		(
+			exchange: EXCHANGE_NAME,
+			type: "direct",
+			durable: true,
+			autoDelete: false
+		);
+		Console.WriteLine("Rabbit successfully started");
 	}
 
 	public static Rabbit GetInstance()

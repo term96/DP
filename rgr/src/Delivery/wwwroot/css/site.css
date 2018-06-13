@@ -1,6 +1,8 @@
 ﻿body {
     padding-top: 50px;
     padding-bottom: 20px;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-size: 16px;
 }
 
 /* Wrapping element */
@@ -32,4 +34,79 @@
     .carousel-caption {
         display: none;
     }
+}
+
+.item-image-small {
+    display: inline-block;
+    width: 150px;
+    height: auto;
+    vertical-align: top;
+}
+
+.item-header {
+    margin-top: 0;
+}
+
+.item-summary {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.item-summary-span {
+    display: block;
+}
+
+.item-list {
+    margin-top: 1em;
+    padding-left: 0;
+    list-style-type: none;
+    font-size: 16px;
+    width: auto;
+}
+
+.item-list li {
+    margin-top: 2em;
+}
+
+.item-list li:first-child {
+    margin-top: 0;
+}
+
+.item-property,
+.button-submit {
+    display: block;
+    width: 450px;
+    margin-top: 1em;
+}
+
+.item-property-field {
+    width: 300px;
+    float: right;
+}
+
+.button-submit {
+    width: auto;
+}
+
+.result-success,
+.result-error {
+    margin: 1em 0;
+}
+
+.result-success {
+    color: #0c0;
+}
+
+.result-error {
+    color: #f00;
+}
+
+.button-submit,
+.button-remove,
+.button-edit {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.button-remove {
+    color: #f00;
 }

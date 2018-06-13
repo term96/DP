@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Realms;
 
-namespace Shop.Models
+namespace Delivery.Models
 {
 	public class OrderModel : RealmObject
 	{

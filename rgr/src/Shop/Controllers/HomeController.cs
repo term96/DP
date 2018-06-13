@@ -35,9 +35,11 @@ namespace Shop.Controllers
             {
                 var db = GetRealmInstance();
                 var cart = GetOrCreateCart(db);
+                Rabbit rabbit = Rabbit.GetInstance();
                 foreach (var item in cart.items)
                 {
-                    order.items.Add(new PhoneModel() { id = Guid.NewGuid().ToString(), vendor = item.vendor, model = item.model, price = item.price });
+                    order.items.Add(new OrderItem() { id = item.id, vendor = item.vendor, model = item.model, price = item.price });
+                    rabbit.BroadcastItemSoldEvent(item.id);
                 }
                 order.id = Guid.NewGuid().ToString();
                 order.status = "Не обработано";
@@ -46,6 +48,7 @@ namespace Shop.Controllers
                     db.Add(order);
                     db.Remove(cart);
                 });
+                rabbit.BroadcastNewOrderEvent(order);
             }
             catch(Exception e)
             {
