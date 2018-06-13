@@ -14,7 +14,9 @@ namespace Stock
     {
         public static void Main(string[] args)
         {
+            Rabbit rabbit = Rabbit.GetInstance();
             BuildWebHost(args).Run();
+            rabbit.StopRabbit();
         }
 
         public static IWebHost BuildWebHost(string[] args) =>
